@@ -12,5 +12,6 @@ userRouter.get('/logout',userAuth,userController.logout)
 
 
 userRouter.get('/me' ,userAuth,userController.getuser)
+userRouter.patch('/update',userAuth,userController.updateProfile)
 
 module.exports = userRouter;

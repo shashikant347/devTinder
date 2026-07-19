@@ -119,9 +119,63 @@ const logout = async (req, res) => {
     });
   }
 };
+
+
+const updateProfile = async (req, res) => {
+  try {
+    const allowedFields = [
+      "skills",
+      "about",
+      "photoUrl",
+      "gender",
+      "age",
+    ];
+
+    const isAllowed = Object.keys(req.body).every((field) =>
+      allowedFields.includes(field)
+    );
+
+    if (!isAllowed) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid update fields",
+      });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      req.userId,
+      req.body,
+      {
+        new: true,
+        runValidators: true,
+      }
+    ).select("-password");
+
+    if (!updatedUser) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Profile updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   signin,
   login,
   getuser,
-  logout
+  logout,
+  updateProfile
 };
