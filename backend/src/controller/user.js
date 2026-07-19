@@ -83,7 +83,45 @@ const login = async (req,res)=>{
     res.status(500).json({succes:false,message:"internal server error",error})
   }
 }
+
+const getuser = async (req,res)=>{
+try{
+
+  const userid = req.userId;
+
+   const userdata = await User.findById(userid).select("-password");
+
+
+   return res.status(200).json({success:true,data:userdata})
+  
+
+} catch(error){
+  return res.status(500).json({succes:false,message:"internal server error",error})
+}
+
+  
+}
+
+
+const logout = async (req, res) => {
+  try {
+    res.clearCookie("token");
+
+    return res.status(200).json({
+      success: true,
+      message: "Logout successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+};
 module.exports = {
   signin,
-  login
+  login,
+  getuser,
+  logout
 };
