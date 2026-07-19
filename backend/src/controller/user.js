@@ -1,5 +1,9 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken")
+const dotenv = require('dotenv')
+ 
+dotenv.config()
 
 const signin = async (req, res) => {
   try {
@@ -40,40 +44,45 @@ const signin = async (req, res) => {
   }
 };
 
-const login = async (req, res) => {
-  try {
-    const { emailId, password } = req.body;
+const login = async (req,res)=>{
+  try{
 
-    const existUser = await User.findOne({ emailId });
-    if (!existUser) {
-      return res.status(404).json({
-        success: false,
-        message: "Invalid credentials",
-      });
+    const {emailId,password}= req.body;
+   
+    const existsUser = await User.findOne({emailId})
+  
+    if(!existsUser){
+      return res.status(400).json({seccess:false,message:"Invalid credentials"})
     }
+  
+     const checkPasswrod =  await bcrypt.compare(password,existsUser.password)
+     
+     if(!checkPasswrod){
+       return res.status(400).json({success:false,message:"Invalid credentials "})
+     }
+  
+     const token = jwt.sign({userId : existsUser._id},process.env.JWT_SECRET,{
+      expiresIn:"1d"
+     })
+  
+     res.cookie("token",token,{
+      maxAge:60*60*1000
+     })
 
-    const p =  await bcrypt.compare(password,existUser.password)
-
-    if(!p){
-      return res.status(401).json({success:false,message:"Invalid credentials"})
-    }
-
-    return res.status(200).json({success:true,message:"login succesfully",data:{
-          id: existUser._id,
-        firstname: existUser.firstname,
-        lastname: existUser.lastname,
-        emailId: existUser.emailId,
-    }})
-
-
-
-  } catch (error) {
-    return res.status(500).json({success:false,message:"internal server error",error
-
-    })
+    return res.status(200).json({
+  success: true,
+  message: "Login successfully",
+  data: {
+    id: existsUser._id,
+    firstname: existsUser.firstname,
+    lastname: existsUser.lastname,
+    emailId: existsUser.emailId,
+  },
+});
+  }catch (error ){
+    res.status(500).json({succes:false,message:"internal server error",error})
   }
-};
-
+}
 module.exports = {
   signin,
   login
