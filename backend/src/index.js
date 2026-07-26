@@ -4,6 +4,8 @@ const appRouter  = require('./appRouter')
 const connectDB = require('./config/connectDB')
 const cookie = require('cookie-parser');
 const cookieParser = require('cookie-parser');
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 
 
 dotenv.config();
