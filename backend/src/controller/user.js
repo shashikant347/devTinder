@@ -208,26 +208,48 @@ const getFeed = async (req, res) => {
   try {
     const loginUser = req.userId;
 
-    const connection = await Request.find({
-      $or: [{ fromUser: loginUser }, { toUser: loginUser }],
+    const page = parseInt(req.query.page) || 1;
+    const limit = Math.min(parseInt(req.query.limit) || 10, 50);
+    const skip = (page - 1) * limit;
+
+    const connections = await Request.find({
+      $or: [
+        { fromUser: loginUser },
+        { toUser: loginUser }
+      ]
     }).select("fromUser toUser");
-    const hideusers = new Set();
-    connection.forEach((e) => {
-      hideusers.add(e.fromUser.toString());
-      hideusers.add(e.toUser.toString());
+
+    const hideUsers = new Set([loginUser.toString()]);
+
+    connections.forEach((connection) => {
+      hideUsers.add(connection.fromUser.toString());
+      hideUsers.add(connection.toUser.toString());
     });
 
     const users = await User.find({
-      $and: [
-        { _id: { $nin: Array.from(hideusers) } },
-        { _id: { $ne: loginUser } },
-      ],
-    }).select("firstName lastName age gender skills photoUrl");
-    res.status(200).json({ data: users });
+      _id: {
+        $nin: [...hideUsers]
+      }
+    })
+      .select("firstName lastName age gender skills photoUrl")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return res.status(200).json({
+      success: true,
+      page,
+      limit,
+      count: users.length,
+      data: users,
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ succes: false, message: "internal server error" });
+    console.error(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };
 
