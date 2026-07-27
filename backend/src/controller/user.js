@@ -1,10 +1,10 @@
 const User = require("../model/user");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken")
-const dotenv = require('dotenv')
-const Request = require('../model/request')
- 
-dotenv.config()
+const jwt = require("jsonwebtoken");
+const dotenv = require("dotenv");
+const Request = require("../model/request");
+
+dotenv.config();
 
 const signin = async (req, res) => {
   try {
@@ -45,64 +45,64 @@ const signin = async (req, res) => {
   }
 };
 
-const login = async (req,res)=>{
-  try{
+const login = async (req, res) => {
+  try {
+    const { emailId, password } = req.body;
 
-    const {emailId,password}= req.body;
-   
-    const existsUser = await User.findOne({emailId})
-  
-    if(!existsUser){
-      return res.status(400).json({seccess:false,message:"Invalid credentials"})
+    const existsUser = await User.findOne({ emailId });
+
+    if (!existsUser) {
+      return res
+        .status(400)
+        .json({ seccess: false, message: "Invalid credentials" });
     }
-  
-     const checkPasswrod =  await bcrypt.compare(password,existsUser.password)
-     
-     if(!checkPasswrod){
-       return res.status(400).json({success:false,message:"Invalid credentials "})
-     }
-  
-     const token = jwt.sign({userId : existsUser._id},process.env.JWT_SECRET,{
-      expiresIn:"1d"
-     })
-  
-     res.cookie("token",token,{
-      maxAge:60*60*1000
-     })
+
+    const checkPasswrod = await bcrypt.compare(password, existsUser.password);
+
+    if (!checkPasswrod) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials " });
+    }
+
+    const token = jwt.sign({ userId: existsUser._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
+
+    res.cookie("token", token, {
+      maxAge: 60 * 60 * 1000,
+    });
 
     return res.status(200).json({
-  success: true,
-  message: "Login successfully",
-  data: {
-    id: existsUser._id,
-    firstname: existsUser.firstname,
-    lastname: existsUser.lastname,
-    emailId: existsUser.emailId,
-  },
-});
-  }catch (error ){
-    res.status(500).json({succes:false,message:"internal server error",error})
+      success: true,
+      message: "Login successfully",
+      data: {
+        id: existsUser._id,
+        firstname: existsUser.firstname,
+        lastname: existsUser.lastname,
+        emailId: existsUser.emailId,
+      },
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ succes: false, message: "internal server error", error });
   }
-}
+};
 
-const getuser = async (req,res)=>{
-try{
+const getuser = async (req, res) => {
+  try {
+    const userid = req.userId;
 
-  const userid = req.userId;
+    const userdata = await User.findById(userid).select("-password");
 
-   const userdata = await User.findById(userid).select("-password");
-
-
-   return res.status(200).json({success:true,data:userdata})
-  
-
-} catch(error){
-  return res.status(500).json({succes:false,message:"internal server error",error})
-}
-
-  
-}
-
+    return res.status(200).json({ success: true, data: userdata });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ succes: false, message: "internal server error", error });
+  }
+};
 
 const logout = async (req, res) => {
   try {
@@ -121,19 +121,12 @@ const logout = async (req, res) => {
   }
 };
 
-
 const updateProfile = async (req, res) => {
   try {
-    const allowedFields = [
-      "skills",
-      "about",
-      "photoUrl",
-      "gender",
-      "age",
-    ];
+    const allowedFields = ["skills", "about", "photoUrl", "gender", "age"];
 
     const isAllowed = Object.keys(req.body).every((field) =>
-      allowedFields.includes(field)
+      allowedFields.includes(field),
     );
 
     if (!isAllowed) {
@@ -143,14 +136,10 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      req.userId,
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
-    ).select("-password");
+    const updatedUser = await User.findByIdAndUpdate(req.userId, req.body, {
+      new: true,
+      runValidators: true,
+    }).select("-password");
 
     if (!updatedUser) {
       return res.status(404).json({
@@ -173,45 +162,75 @@ const updateProfile = async (req, res) => {
   }
 };
 
-
-const getAllConnectionRequest = async (req,res)=>{
-  try{
+const getAllConnectionRequest = async (req, res) => {
+  try {
     const id = req.userId;
     const connectionRequest = await Request.find({
-      toUser:id,
-      status:"interested"
-    }).populate('fromUser',['firstname','lastname'])
- 
-    res.status(200).json({success:true,data:connectionRequest})
-    
-  }catch(err){
-    return res.status(505).json({succes:false,message:"internal server error:",err})
+      toUser: id,
+      status: "interested",
+    }).populate("fromUser", ["firstname", "lastname"]);
+
+    res.status(200).json({ success: true, data: connectionRequest });
+  } catch (err) {
+    return res
+      .status(505)
+      .json({ succes: false, message: "internal server error:", err });
   }
-}
+};
 
-
-const acceptedConnectonRequest = async (req,res)=>{
-  try{
+const acceptedConnectonRequest = async (req, res) => {
+  try {
     const id = req.userId;
 
     const connectionRequest = await Request.find({
-      $or:[
-        { fromUser:id,status:'accepted'},
-        { toUser:id,status:'accepted'}
-      ]
-    }).populate("fromUser", "firstname lastname photoUrl age skills")
-.populate("toUser", "firstname lastname photoUrl age skills");
- const data = connectionRequest.map((row) => {
-  if (row.fromUser._id.equals(id)) {
-  return row.toUser;
-}
-   return row.fromUser
- })
-    res.status(200).json({data:data}) 
-  }catch(error){
-    return  res.status(500).json({success:false,message:"internal server error"})
+      $or: [
+        { fromUser: id, status: "accepted" },
+        { toUser: id, status: "accepted" },
+      ],
+    })
+      .populate("fromUser", "firstname lastname photoUrl age skills")
+      .populate("toUser", "firstname lastname photoUrl age skills");
+    const data = connectionRequest.map((row) => {
+      if (row.fromUser._id.equals(id)) {
+        return row.toUser;
+      }
+      return row.fromUser;
+    });
+    res.status(200).json({ data: data });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "internal server error" });
   }
-}
+};
+
+const getFeed = async (req, res) => {
+  try {
+    const loginUser = req.userId;
+
+    const connection = await Request.find({
+      $or: [{ fromUser: loginUser }, { toUser: loginUser }],
+    }).select("fromUser toUser");
+    const hideusers = new Set();
+    connection.forEach((e) => {
+      hideusers.add(e.fromUser.toString());
+      hideusers.add(e.toUser.toString());
+    });
+
+    const users = await User.find({
+      $and: [
+        { _id: { $nin: Array.from(hideusers) } },
+        { _id: { $ne: loginUser } },
+      ],
+    }).select("firstName lastName age gender skills photoUrl");
+    res.status(200).json({ data: users });
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ succes: false, message: "internal server error" });
+  }
+};
+
 module.exports = {
   signin,
   login,
@@ -219,5 +238,6 @@ module.exports = {
   logout,
   updateProfile,
   getAllConnectionRequest,
-  acceptedConnectonRequest
+  acceptedConnectonRequest,
+  getFeed,
 };
