@@ -10,7 +10,8 @@ userRouter.post('/signin',userValidation.signin,userController.signin)
 userRouter.post('/login',userValidation.login,userController.login)
 userRouter.get('/logout',userAuth,userController.logout)
 
-
+userRouter.get('/accepted',userAuth,userController.acceptedConnectonRequest)
+userRouter.get('/connection',userAuth,userController.getAllConnectionRequest)
 userRouter.get('/me' ,userAuth,userController.getuser)
 userRouter.patch('/update',userAuth,userController.updateProfile)
 

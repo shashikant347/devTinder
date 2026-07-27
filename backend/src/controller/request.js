@@ -71,6 +71,42 @@ const sendConnectionRequest = async (req, res) => {
   }
 };
 
+
+
+const reviewRequest = async (req,res)=>{
+  try{
+    const id =  req.userId;
+    const { status } = req.params;
+    const requestId = req.params.id;
+
+    const allowState = ["accepted", "rejected"];
+
+    if(!allowState.includes(status)){
+      return res.status(400).json({message:"status are not allowed"})
+    }
+
+    const connectionRequest = await Request.findOne({
+      _id : requestId,
+      toUser: id,
+      status: 'interested'
+    })
+
+    if(!connectionRequest){
+      return res.status(404).json({message:"connection reqest not  found "})
+    }
+
+    connectionRequest.status =  status;
+
+    const data = await  connectionRequest.save()
+
+     res.json({message:"connect request "+status, data:data})
+
+
+  }catch(err){
+    return  res.status(500).json({succes:false , message:`intarnal sever error :${err.message}` })
+  }
+}
 module.exports = {
   sendConnectionRequest,
+  reviewRequest
 };

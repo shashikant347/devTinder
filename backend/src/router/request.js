@@ -7,8 +7,8 @@ const { model } = require('mongoose')
 
 const requestRouter = express.Router()
 
-
-requestRouter.get('/:status/:id',userAuth,requestController.sendConnectionRequest)
-
+requestRouter.post('/send/:status/:id', userAuth, requestController.sendConnectionRequest)
+requestRouter.post('/sand/:status/:id', userAuth, requestController.sendConnectionRequest)
+requestRouter.post('/review/:status/:id', userAuth, requestController.reviewRequest)
 
 module.exports = requestRouter;

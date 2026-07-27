@@ -1,0 +1,134 @@
+{
+  "info": {
+    "name": "devTinder API",
+    "description": "Postman collection for the backend APIs created in devTinder",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "User - Signin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"firstname\": \"John\",\n  \"lastname\": \"Doe\",\n  \"emailId\": \"john@example.com\",\n  \"password\": \"12345678\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/signin",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "signin"]
+        }
+      }
+    },
+    {
+      "name": "User - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"emailId\": \"john@example.com\",\n  \"password\": \"12345678\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/login",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "login"]
+        }
+      }
+    },
+    {
+      "name": "User - Logout",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/logout",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "logout"]
+        }
+      }
+    },
+    {
+      "name": "User - Get My Profile",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/me",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "me"]
+        }
+      }
+    },
+    {
+      "name": "User - Get Connection Requests",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/connection",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "connection"]
+        }
+      }
+    },
+    {
+      "name": "User - Update Profile",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"skills\": [\"nodejs\", \"express\"],\n  \"about\": \"Backend developer\",\n  \"photoUrl\": \"https://example.com/photo.jpg\",\n  \"gender\": \"male\",\n  \"age\": 25\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/api/v1/user/update",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "user", "update"]
+        }
+      }
+    },
+    {
+      "name": "Request - Send Connection Request",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/request/sand/interested/64f0d4f5a1b2c3d4e5f67890",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "request", "sand", "interested", "64f0d4f5a1b2c3d4e5f67890"]
+        }
+      }
+    },
+    {
+      "name": "Request - Review Connection Request",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{base_url}}/api/v1/request/review/accepted/64f0d4f5a1b2c3d4e5f67890",
+          "host": ["{{base_url}}"],
+          "path": ["api", "v1", "request", "review", "accepted", "64f0d4f5a1b2c3d4e5f67890"]
+        }
+      }
+    }
+  ]
+}

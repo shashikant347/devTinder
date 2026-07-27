@@ -2,6 +2,7 @@ const User = require("../model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken")
 const dotenv = require('dotenv')
+const Request = require('../model/request')
  
 dotenv.config()
 
@@ -172,10 +173,51 @@ const updateProfile = async (req, res) => {
   }
 };
 
+
+const getAllConnectionRequest = async (req,res)=>{
+  try{
+    const id = req.userId;
+    const connectionRequest = await Request.find({
+      toUser:id,
+      status:"interested"
+    }).populate('fromUser',['firstname','lastname'])
+ 
+    res.status(200).json({success:true,data:connectionRequest})
+    
+  }catch(err){
+    return res.status(505).json({succes:false,message:"internal server error:",err})
+  }
+}
+
+
+const acceptedConnectonRequest = async (req,res)=>{
+  try{
+    const id = req.userId;
+
+    const connectionRequest = await Request.find({
+      $or:[
+        { fromUser:id,status:'accepted'},
+        { toUser:id,status:'accepted'}
+      ]
+    }).populate("fromUser", "firstname lastname photoUrl age skills")
+.populate("toUser", "firstname lastname photoUrl age skills");
+ const data = connectionRequest.map((row) => {
+  if (row.fromUser._id.equals(id)) {
+  return row.toUser;
+}
+   return row.fromUser
+ })
+    res.status(200).json({data:data}) 
+  }catch(error){
+    return  res.status(500).json({success:false,message:"internal server error"})
+  }
+}
 module.exports = {
   signin,
   login,
   getuser,
   logout,
-  updateProfile
+  updateProfile,
+  getAllConnectionRequest,
+  acceptedConnectonRequest
 };
