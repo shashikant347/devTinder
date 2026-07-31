@@ -8,6 +8,7 @@ import Feed from "./pages/Feed";
 import Profile from "./pages/Profile";
 import Connections from "./pages/Connections";
 import Requests from "./pages/Requests";
+import Chat from "./components/chat";
 
 function App() {
   return (
@@ -62,6 +63,18 @@ function App() {
                 <Navbar />
                 <main className="flex-1">
                   <Requests />
+                </main>
+                <Footer />
+              </>
+            }
+          />
+          <Route
+            path="/chat/:id"
+            element={
+              <>
+                <Navbar />
+                <main className="flex-1">
+                  <Chat />
                 </main>
                 <Footer />
               </>

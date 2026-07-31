@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 const ConnectionCard = ({ user, type, onAction, requestId }) => {
+  const navigate = useNavigate();
+
   return (
     <div className="card bg-base-100/80 backdrop-blur-sm border border-base-content/5 shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
       <div className="card-body p-4 flex-row items-center gap-4">
@@ -58,12 +62,20 @@ const ConnectionCard = ({ user, type, onAction, requestId }) => {
         )}
 
         {/* Badge for connections */}
-        {type === "connection" && (
-          <div className="badge badge-success badge-outline gap-1">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
-            Connected
+        {type === "connection" ? (
+          <div className="flex items-center gap-2">
+            <div className="badge badge-success badge-outline gap-1">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+              Connected
+            </div>
+            <button
+              onClick={() => navigate(`/chat/${user._id}`, { state: { user } })}
+              className="btn btn-xs btn-primary btn-outline"
+            >
+              Chat
+            </button>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );
